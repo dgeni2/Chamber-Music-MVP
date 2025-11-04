@@ -241,7 +241,7 @@ function Tag({
             e.stopPropagation();
             onEdit();
           }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity relative z-10"
+          className="relative z-10"
           aria-label={`Edit ${label}`}
         >
           <EditIcon size={14} className="!cursor-pointer" />
