@@ -1,7 +1,7 @@
 {
-      "name": "harmony-generator",
+      "name": "harmonyforge",
       "version": "1.0.0",
-      "description": "A modern web application for generating harmonies from MIDI/XML files with intelligent instrument selection",
+      "description": "A modern web application for forging chamber music harmonies from MIDI/XML files with intelligent instrument selection",
       "private": true,
       "type": "module",
       "dependencies": {

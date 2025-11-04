@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
-import violinImg from "../assets/violin.jpg";
-import violaImg from "../assets/viola.jpg";
-import celloImg from "../assets/cello.jpg";
-import doubleBassImg from "../assets/double bass.jpg";
-import { X } from 'lucide-react';
-import { PrimaryButton } from './ui/Buttons';
+import { X, Music } from 'lucide-react';
+import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import AppHeader from './AppHeader';
 import PageHeader from './PageHeader';
@@ -114,30 +110,67 @@ function Frame12({
   );
 }
 
+// Import SVG images
+import AltoImage from '../assets/alto-instrument.svg';
+import TenorImage from '../assets/tenor-instrument.svg';
+import BassImage from '../assets/bass-instrument.svg';
+
+// Icon components for each instrument
+function AltorIcon() {
+  return (
+    <img src={AltoImage} alt="Alto instrument visualization" className="w-full h-full object-contain" />
+  );
+}
+
+function TenorIcon() {
+  return (
+    <img src={TenorImage} alt="Tenor instrument visualization" className="w-full h-full object-contain" />
+  );
+}
+
+function BassIcon() {
+  return (
+    <img src={BassImage} alt="Bass instrument visualization" className="w-full h-full object-contain" />
+  );
+}
+
 function InstrumentCard({ 
-  image, 
-  name, 
+  icon,
+  name,
+  range,
+  description,
   isSelected,
   onClick 
 }: { 
-  image: string; 
+  icon: React.ReactNode;
   name: string;
+  range: string;
+  description: string;
   isSelected: boolean;
   onClick: () => void;
 }) {
   return (
     <div 
-      className={`bg-gradient-to-b box-border content-stretch flex from-[rgba(231,109,87,0.1)] gap-[16px] sm:gap-[18px] md:gap-[20px] lg:gap-[22px] h-[240px] sm:h-[280px] md:h-[300px] lg:h-[320px] items-center px-[24px] sm:px-[32px] md:px-[38px] lg:px-[45px] py-[14px] sm:py-[16px] md:py-[17px] lg:py-[18px] relative rounded-[20px] sm:rounded-[24px] md:rounded-[28px] lg:rounded-[30px] shrink-0 to-[109.2%] to-[rgba(115,115,115,0)] w-full sm:w-[180px] md:w-[220px] lg:w-[260px] cursor-pointer transition-all duration-300 hover:scale-105 ${isSelected ? 'ring-4 ring-[#e76d57]' : ''}`}
+      className={`bg-gradient-to-b box-border content-stretch flex from-[rgba(231,109,87,0.1)] flex-col gap-[16px] sm:gap-[18px] md:gap-[20px] lg:gap-[22px] items-center p-[24px] sm:p-[32px] md:p-[38px] lg:p-[45px] relative rounded-[20px] sm:rounded-[24px] md:rounded-[28px] lg:rounded-[30px] shrink-0 to-[109.2%] to-[rgba(115,115,115,0)] w-full sm:w-[240px] md:w-[280px] lg:w-[320px] cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${isSelected ? 'ring-4 ring-[#e76d57] shadow-2xl' : ''}`}
       onClick={onClick}
     >
       <div aria-hidden="true" className={`absolute border-[2px] sm:border-[2.5px] md:border-[3px] border-solid inset-0 pointer-events-none rounded-[20px] sm:rounded-[24px] md:rounded-[28px] lg:rounded-[30px] transition-colors ${isSelected ? 'border-[#e76d57]' : 'border-[#e5ddd5]'}`} />
-      <div className="content-stretch flex flex-col gap-[16px] sm:gap-[18px] md:gap-[20px] lg:gap-[22px] items-center relative shrink-0 w-full">
-        <Card className="relative shrink-0 w-[120px] h-[120px] sm:w-[130px] sm:h-[130px] md:w-[150px] md:h-[150px] lg:w-[170px] lg:h-[170px] flex items-center justify-center overflow-hidden border-none shadow-md">
-          <CardContent className="p-2 sm:p-2.5 md:p-3 lg:p-3.5 flex items-center justify-center">
-            <img alt={name} className="max-w-full max-h-full object-contain pointer-events-none" src={image} />
-          </CardContent>
-        </Card>
-        <p className="font-['Figtree:Bold',_sans-serif] font-bold leading-[normal] relative shrink-0 text-[16px] sm:text-[18px] md:text-[19px] lg:text-[21px] text-black text-center">{name}</p>
+      
+      <div className="relative shrink-0 w-[140px] h-[140px] sm:w-[150px] sm:h-[150px] md:w-[170px] md:h-[170px] lg:w-[190px] lg:h-[190px] flex items-center justify-center">
+        {icon}
+      </div>
+      
+      <p className="font-['Figtree:Bold',_sans-serif] font-bold leading-[normal] relative shrink-0 text-[20px] sm:text-[22px] md:text-[24px] lg:text-[26px] text-black text-center">
+        {name}
+      </p>
+      
+      <div className="flex flex-col gap-2 items-center text-center">
+        <p className="font-['SF_Pro_Rounded:Regular',_sans-serif] text-[#6B6563] text-[13px] sm:text-[14px] md:text-[15px] lg:text-[16px]">
+          Range: {range}
+        </p>
+        <p className="font-['SF_Pro_Rounded:Regular',_sans-serif] text-[#6B6563] text-[12px] sm:text-[13px] md:text-[14px] px-4">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -145,24 +178,40 @@ function InstrumentCard({
 
 function Frame9({ selectedInstruments, onInstrumentToggle, maxSelection }: { selectedInstruments: string[]; onInstrumentToggle: (name: string) => void; maxSelection: number }) {
   const instruments = [
-    { image: violinImg, name: 'Violin' },
-    { image: violaImg, name: 'Viola' },
-    { image: celloImg, name: 'Cello' },
-    { image: doubleBassImg, name: 'Double Bass' },
+    { 
+      icon: <AltorIcon />, 
+      name: 'Altor',
+      range: 'C3 to E6',
+      description: 'Rich, warm tone perfect for harmonies'
+    },
+    { 
+      icon: <TenorIcon />, 
+      name: 'Tenor',
+      range: 'C2 to C6',
+      description: 'Deep, expressive voice for lower harmonies'
+    },
+    { 
+      icon: <BassIcon />, 
+      name: 'Bass',
+      range: 'E1 to G4',
+      description: 'Foundation with resonant low tones'
+    },
   ];
 
   return (
     <div className="content-start flex flex-col gap-[30px] sm:gap-[35px] md:gap-[40px] items-start relative shrink-0 w-full">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-[18px] sm:gap-[22px] md:gap-[26px] lg:gap-[36px] items-start relative shrink-0 w-full justify-items-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px] sm:gap-[32px] md:gap-[40px] lg:gap-[48px] items-start relative shrink-0 w-full justify-items-center">
         {instruments.map((instrument, i) => {
           const isSelected = selectedInstruments.includes(instrument.name);
           const canSelect = isSelected || selectedInstruments.length < maxSelection;
           
           return (
-            <div key={i} className={`w-full max-w-[260px] ${!canSelect ? 'opacity-40 pointer-events-none' : ''}`}>
+            <div key={i} className={`w-full max-w-[320px] ${!canSelect ? 'opacity-40 pointer-events-none' : ''}`}>
               <InstrumentCard 
-                image={instrument.image} 
+                icon={instrument.icon}
                 name={instrument.name}
+                range={instrument.range}
+                description={instrument.description}
                 isSelected={isSelected}
                 onClick={() => canSelect && onInstrumentToggle(instrument.name)}
               />
@@ -202,13 +251,13 @@ function Frame13({
         onDifficultyChange={onDifficultyChange}
       />
       <Frame9 selectedInstruments={selectedInstruments} onInstrumentToggle={onInstrumentToggle} maxSelection={4} />
-      <PrimaryButton
+      <Button
         onClick={onGenerate}
-        className="self-center"
+        className="self-center min-w-[200px] h-12 text-base bg-gradient-to-r from-[#201315] to-[#e76d57] hover:opacity-90"
         disabled={!canContinue}
       >
         Continue
-      </PrimaryButton>
+      </Button>
     </div>
   );
 }

@@ -13,48 +13,92 @@ interface ProcessingStep {
 
 // Musical Staff with Animated Notes
 function MusicalStaff({ isActive, currentStep }: { isActive: boolean; currentStep: number }) {
-  const [notes, setNotes] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([]);
+  const [notes, setNotes] = useState<Array<{ 
+    id: number; 
+    x: number; 
+    y: number; 
+    delay: number;
+    duration: number;
+    curve: number;
+  }>>([]);
 
+  // Generate random notes with varied properties
+  const generateNotes = (count: number = 6) => {
+    const newNotes = Array.from({ length: count }, (_, i) => ({
+      id: Date.now() + i + Math.random() * 1000,
+      x: Math.random() * 100,
+      y: Math.random() * 4,
+      delay: Math.random() * 2,
+      duration: 4 + Math.random() * 4, // 4-8 seconds for varied speeds
+      curve: -30 + Math.random() * 60, // -30 to 30 for vertical curve variation
+    }));
+    return newNotes;
+  };
+
+  // Regular note generation
   useEffect(() => {
     if (!isActive) return;
 
-    // Generate random notes
-    const generateNotes = () => {
-      const newNotes = Array.from({ length: 8 }, (_, i) => ({
-        id: Date.now() + i,
-        x: Math.random() * 100,
-        y: Math.random() * 4, // 0-4 for staff positions
-        delay: Math.random() * 2,
-      }));
-      setNotes(newNotes);
-    };
-
-    generateNotes();
-    const interval = setInterval(generateNotes, 3000);
+    setNotes(generateNotes());
+    const interval = setInterval(() => {
+      setNotes(generateNotes());
+    }, 3000);
     
     return () => clearInterval(interval);
   }, [isActive]);
 
-  // Different note symbols based on current step
+  // Burst effect when step changes
+  useEffect(() => {
+    if (!isActive || currentStep < 0) return;
+    
+    // Generate burst of 4 notes when step completes
+    const burstNotes = generateNotes(4);
+    setNotes(prev => [...prev, ...burstNotes]);
+    
+    // Clean up burst notes after animation
+    const cleanup = setTimeout(() => {
+      setNotes(prev => prev.filter(note => 
+        !burstNotes.find(burst => burst.id === note.id)
+      ));
+    }, 8000);
+    
+    return () => clearTimeout(cleanup);
+  }, [currentStep, isActive]);
+
   const getNoteSymbol = () => {
     const symbols = ['♪', '♫', '♬', '♩'];
     return symbols[currentStep % symbols.length];
   };
 
+  // Calculate progress percentage for visual indicator
+  const progressPercentage = ((currentStep + 1) / 4) * 100;
+
   return (
-    <div className="relative w-full max-w-[500px] h-[300px] sm:h-[350px] md:h-[400px] flex items-center justify-center bg-gradient-to-br from-white/40 to-white/20 rounded-2xl sm:rounded-3xl backdrop-blur-sm border-2 border-black/10 shadow-xl overflow-hidden">
+    <div className="relative w-full max-w-[400px] h-[180px] sm:h-[220px] flex items-center justify-center bg-gradient-to-br from-white/40 to-white/20 rounded-xl sm:rounded-2xl backdrop-blur-sm border-2 border-black/10 shadow-2xl overflow-hidden">
+      {/* Progress Indicator Overlay */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-r from-[#e76d57]/10 to-transparent transition-all duration-1000 ease-out pointer-events-none"
+        style={{ width: `${progressPercentage}%` }}
+      />
+      
       {/* Staff Lines */}
-      <div className="absolute inset-0 flex flex-col justify-center px-8">
+      <div className="absolute inset-0 flex flex-col justify-center px-6">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="w-full h-[2px] bg-black/80 my-4 shadow-sm"
-          />
+            className="relative w-full h-[2px] bg-black/80 my-2 shadow-sm overflow-hidden"
+          >
+            {/* Animated progress fill on staff lines */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-[#e76d57] to-[#e2a59a] transition-all duration-1000 ease-out"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
         ))}
       </div>
 
       {/* Treble Clef */}
-      <div className="absolute left-8 text-7xl font-serif text-black/90 z-10 animate-float">
+      <div className="absolute left-6 text-5xl font-serif text-black/90 z-10 animate-float">
         𝄞
       </div>
 
@@ -64,28 +108,20 @@ function MusicalStaff({ isActive, currentStep }: { isActive: boolean; currentSte
         return (
           <div
             key={note.id}
-            className="absolute text-5xl font-bold animate-note-float [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]"
+            className="absolute text-3xl font-bold animate-note-float-curved [text-shadow:_0_2px_4px_rgba(0,0,0,0.2)]"
             style={{
               left: `${note.x}%`,
               top: `${20 + note.y * 15}%`,
               animationDelay: `${note.delay}s`,
+              animationDuration: `${note.duration}s`,
               color: `hsl(${hue}, 70%, 40%)`,
-            }}
+              '--curve-offset': `${note.curve}px`,
+            } as React.CSSProperties & { '--curve-offset': string }}
           >
             {getNoteSymbol()}
           </div>
         );
       })}
-
-      {/* Pitch/Key Indicator */}
-      {isActive && (
-        <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-8 bg-black/80 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-['Figtree:Bold',_sans-serif] text-[13px] sm:text-[15px] md:text-lg shadow-lg backdrop-blur-sm animate-pulse-subtle">
-          {currentStep === 0 && 'Analyzing...'}
-          {currentStep === 1 && 'Detecting Pitch'}
-          {currentStep === 2 && 'Key: C Major'}
-          {currentStep === 3 && 'Tempo: 120 BPM'}
-        </div>
-      )}
 
       {/* Musical waves in background - removed due to Safari incompatibility */}
       <div className="absolute inset-0 opacity-10 pointer-events-none" aria-hidden="true">
@@ -116,12 +152,22 @@ function CheckCircle({ completed, active, error }: { completed: boolean; active:
   return (
     <div 
       className={`relative shrink-0 size-[50.208px] transition-all duration-300 ${
-        active ? 'scale-110' : 'scale-100'
+        completed ? 'animate-checkmark-bounce' : active ? 'scale-110 animate-pulse-ring' : 'scale-100'
       } ${error ? 'shake' : ''}`}
       data-name="Check circle"
       role="status"
       aria-label={active ? "Processing" : completed ? "Completed" : error ? "Error" : "Pending"}
     >
+      {/* Pulse ring for active state */}
+      {active && (
+        <div className="absolute inset-0 rounded-full bg-[#e76d57]/20 animate-ping" />
+      )}
+      
+      {/* Glow effect for completed */}
+      {completed && (
+        <div className="absolute inset-0 rounded-full bg-green-500/30 blur-md animate-pulse-glow" />
+      )}
+      
       <svg className="block size-full relative z-10" fill={fillColor} preserveAspectRatio="none" viewBox="0 0 51 51">
         <g id="Check circle">
           {error ? (
@@ -147,25 +193,54 @@ function CheckCircle({ completed, active, error }: { completed: boolean; active:
 
 function ProcessingStepComponent({ 
   step, 
-  gap, 
   onRetry 
 }: { 
   step: ProcessingStep; 
-  gap: string; 
   onRetry?: () => void;
 }) {
-  const textColor = step.error ? "text-red-600" : (step.completed || step.active ? "text-black" : "text-[#dadada]");
-  const opacity = step.completed ? "opacity-60" : "opacity-100";
-  const gapClass = gap === '41.84' ? 'gap-[20px] sm:gap-[28px] md:gap-[35px] lg:gap-[41.84px]' : 'gap-[12px] sm:gap-[16px] md:gap-[20px]';
+  // Progressive styling based on step state
+  const getStepStyles = () => {
+    if (step.error) {
+      return {
+        textColor: "text-red-600",
+        opacity: "opacity-100",
+        decoration: "",
+      };
+    }
+    if (step.completed) {
+      return {
+        textColor: "text-black",
+        opacity: "opacity-60",
+        decoration: "",
+      };
+    }
+    if (step.active) {
+      return {
+        textColor: "text-[#e76d57]",
+        opacity: "opacity-100",
+        decoration: "animate-pulse-subtle",
+      };
+    }
+    // Future steps (not yet active)
+    return {
+      textColor: "text-[#dadada]",
+      opacity: "opacity-50",
+      decoration: "",
+    };
+  };
+
+  const { textColor, opacity, decoration } = getStepStyles();
   
   return (
     <div 
-      className={`content-stretch flex items-center relative shrink-0 transition-all duration-500 ${gapClass}`}
+      className={`content-stretch flex items-center gap-3 sm:gap-4 relative shrink-0 transition-all duration-500 ${
+        step.active ? 'pl-2 border-l-4 border-[#e76d57]' : ''
+      }`}
       aria-current={step.active ? "step" : undefined}
     >
       <p 
-        className={`font-['Figtree:Bold',_sans-serif] font-bold leading-[normal] relative shrink-0 text-wrap sm:text-nowrap whitespace-normal sm:whitespace-pre ${textColor} ${opacity} transition-all duration-500 ${
-          step.active ? 'text-[22px] sm:text-[26px] md:text-[32px] lg:text-[36px] scale-105' : 'text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] scale-100'
+        className={`font-['Figtree:Bold',_sans-serif] font-bold leading-[normal] relative shrink-0 ${textColor} ${opacity} ${decoration} transition-all duration-500 ${
+          step.active ? 'text-[22px] sm:text-[24px] md:text-[26px] lg:text-[28px] scale-105' : 'text-[20px] sm:text-[22px] md:text-[24px] lg:text-[26px] scale-100'
         }`}
       >
         {step.label}
@@ -217,22 +292,19 @@ function SuccessOverlay() {
       role="alert"
       aria-live="polite"
     >
-      <div className="bg-white rounded-3xl p-12 shadow-2xl animate-scaleIn text-center">
-        <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-green-500 flex items-center justify-center animate-bounce">
-          <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="bg-white rounded-2xl p-8 shadow-2xl animate-scaleIn text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500 flex items-center justify-center animate-bounce">
+          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-3xl font-['Figtree:Bold',_sans-serif] font-bold text-black mb-2">
-          Processing Complete!
+        <h2 className="text-2xl font-['Figtree:Bold',_sans-serif] font-bold text-black">
+          Complete!
         </h2>
-        <p className="text-gray-600 font-['Figtree',_sans-serif]">
-          Your music is ready for analysis
-        </p>
       </div>
       
       {/* Confetti effect */}
-      {[...Array(50)].map((_, i) => (
+      {[...Array(30)].map((_, i) => (
         <div
           key={i}
           className={`absolute w-2 h-2 rounded-full animate-confetti ${confettiColors[i % 5]}`}
@@ -250,7 +322,7 @@ function SuccessOverlay() {
 
 function Group({ isProcessing, currentStep }: { isProcessing: boolean; currentStep: number }) {
   return (
-    <div className="relative w-full max-w-[550px] h-[300px] sm:h-[350px] md:h-[450px] flex items-center justify-center">
+    <div className="relative w-full max-w-[400px] h-[180px] sm:h-[220px] flex items-center justify-center">
       <MusicalStaff isActive={isProcessing} currentStep={currentStep} />
     </div>
   );
@@ -266,25 +338,17 @@ export default function ProcessingScreen({
   const [steps, setSteps] = useState<ProcessingStep[]>([
     { label: "Validating format", completed: false, active: true },
     { label: "Extracting pitch", completed: false, active: false },
-    { label: "Identifying key signature", completed: false, active: false },
+    { label: "Identifying key", completed: false, active: false },
     { label: "Setting tempo", completed: false, active: false },
   ]);
   const [progress, setProgress] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(6);
-  const [canCancel, setCanCancel] = useState(true);
 
   const isProcessing = steps.some(step => step.active || !step.completed);
   const currentStepIndex = steps.findIndex(step => step.active);
 
   useEffect(() => {
     const stepDuration = 1500;
-    let currentTime = 6;
-    
-    const countdownInterval = setInterval(() => {
-      currentTime -= 0.1;
-      setTimeRemaining(Math.max(0, currentTime));
-    }, 100);
     
     const timers = steps.map((_, index) => 
       setTimeout(() => {
@@ -311,7 +375,6 @@ export default function ProcessingScreen({
               i === steps.length - 1 ? { ...step, completed: true, active: false } : step
             ));
             setProgress(100);
-            setCanCancel(false);
             
             setTimeout(() => {
               setShowSuccess(true);
@@ -326,15 +389,8 @@ export default function ProcessingScreen({
 
     return () => {
       timers.forEach(timer => clearTimeout(timer));
-      clearInterval(countdownInterval);
     };
   }, [onComplete, steps.length]);
-
-  const handleCancel = () => {
-    if (canCancel && window.confirm('Are you sure you want to cancel processing?')) {
-      window.history.back();
-    }
-  };
 
   const handleRetry = (index: number) => {
     setSteps(prev => prev.map((step, i) => 
@@ -342,11 +398,9 @@ export default function ProcessingScreen({
     ));
   };
 
-  const stepGaps = ["40px", "40px", "40px", "40px"];
-
   return (
     <div 
-      className="bg-[#f8f3eb] relative w-full min-h-screen overflow-auto"
+      className="bg-[#f8f3eb] relative w-full h-screen overflow-hidden flex flex-col"
       role="main"
       aria-label="Processing audio file"
     >
@@ -356,18 +410,18 @@ export default function ProcessingScreen({
         showProgress={true}
       />
       
-      <div className="max-w-[1200px] mx-auto px-4 md:px-8 pb-4">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-6 md:py-8">
         <Breadcrumbs
           steps={["Select Instruments", "Processing", "Results"]}
           currentStep={1}
         />
         <PageHeader
           title="Creating your harmony..."
-          subtitle="We're generating your personalized sheet music. This may take a moment."
+          subtitle=""
         />
       </div>
 
-      <div className="flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-12">
         <style>{`
         @keyframes note-float {
           0% {
@@ -382,6 +436,32 @@ export default function ProcessingScreen({
           }
           100% {
             transform: translateX(550px) translateY(-20px) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes note-float-curved {
+          0% {
+            transform: translateX(-50px) translateY(0) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          25% {
+            transform: translateX(100px) translateY(var(--curve-offset, -20px)) rotate(90deg);
+          }
+          50% {
+            transform: translateX(250px) translateY(calc(var(--curve-offset, -20px) * -0.5)) rotate(180deg);
+          }
+          75% {
+            transform: translateX(400px) translateY(var(--curve-offset, -20px)) rotate(270deg);
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(550px) translateY(-10px) rotate(360deg);
             opacity: 0;
           }
         }
@@ -430,6 +510,47 @@ export default function ProcessingScreen({
           }
         }
         
+        @keyframes checkmark-bounce {
+          0% {
+            transform: scale(0);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2);
+          }
+          75% {
+            transform: scale(0.9);
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes pulse-ring {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes pulse-glow {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.6;
+          }
+        }
+        
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(200%); }
@@ -451,7 +572,11 @@ export default function ProcessingScreen({
         }
         
         .animate-note-float { animation: note-float 6s ease-in-out infinite; }
+        .animate-note-float-curved { animation: note-float-curved 6s ease-in-out forwards; }
         .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-checkmark-bounce { animation: checkmark-bounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .animate-pulse-ring { animation: pulse-ring 2s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
         .animate-wave { animation: wave 4s ease-in-out infinite; }
         .animate-wave-delayed { animation: wave-delayed 4s ease-in-out infinite 0.5s; }
         .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
@@ -485,56 +610,22 @@ export default function ProcessingScreen({
       {showSuccess && <SuccessOverlay />}
       
       {/* Centered content wrapper */}
-      <div className="flex flex-col items-center justify-center w-full max-w-7xl mx-auto">
-        {/* Header with file info - moved to top with improved styling */}
-        <div className="w-full mb-6 sm:mb-8 md:mb-10 lg:mb-12">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 border border-black/5 max-w-4xl mx-auto">
-            <div className="flex flex-col gap-1.5 sm:gap-2">
-              <div className="flex items-center justify-center gap-2 sm:gap-3">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#1E1E1E] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                </svg>
-                <p className="text-[16px] sm:text-[18px] md:text-[20px] lg:text-2xl text-[#1E1E1E] font-['Figtree:Bold',_sans-serif] text-center">
-                  Processing: <span className="font-['Figtree',_sans-serif] text-[#1E1E1E]/80 break-all">{fileName}</span>
-                </p>
-              </div>
-              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#1E1E1E]/70 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-[14px] sm:text-[15px] md:text-[16px] lg:text-lg text-[#1E1E1E]/70 font-['Figtree:SemiBold',_sans-serif] text-center">
-                  Estimated time: <span className="font-['Figtree:Bold',_sans-serif] text-[#1E1E1E]">{timeRemaining.toFixed(1)}s</span> remaining
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-col items-center justify-center w-full max-w-7xl mx-auto gap-6 sm:gap-8">
         
         {/* Main content area - centered */}
-        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center justify-center w-full px-4">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 items-center justify-center w-full">
           <Group isProcessing={isProcessing} currentStep={currentStepIndex} />
           
           <div className="flex flex-col items-center lg:items-start relative w-full lg:w-auto">
-            <div className="flex flex-col gap-5 sm:gap-6 md:gap-8 lg:gap-[60px] xl:gap-[83.68px] w-full max-w-2xl">
+            <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 w-full max-w-xl">
               {steps.map((step, index) => (
                 <ProcessingStepComponent 
                   key={index} 
-                  step={step} 
-                  gap={stepGaps[index]}
+                  step={step}
                   onRetry={() => handleRetry(index)}
                 />
               ))}
             </div>
-            
-            {canCancel && (
-              <button
-                onClick={handleCancel}
-                className="mt-8 sm:mt-10 md:mt-12 px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 bg-[#1E1E1E] text-[#f8f3eb] rounded-full font-['Figtree:Bold',_sans-serif] text-[15px] sm:text-[16px] md:text-lg hover:bg-[#1E1E1E]/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#1E1E1E] focus:ring-offset-2 shadow-lg hover:shadow-xl mx-auto lg:mx-0"
-                aria-label="Cancel processing"
-              >
-                Cancel Processing
-              </button>
-            )}
           </div>
         </div>
       </div>

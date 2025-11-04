@@ -1,4 +1,4 @@
-# Export Guide - Harmony Generator
+# Export Guide - HarmonyForge
 
 ## 📦 What's Included
 
@@ -255,7 +255,7 @@ Integrate libraries like:
 ### File Structure Best Practices
 Your current structure is well-organized:
 ```
-harmony-generator/
+harmonyforge/
 ├── App.tsx                    # Main component
 ├── components/                # React components
 │   ├── InstrumentSelectionScreen.tsx
@@ -314,7 +314,7 @@ If you encounter issues:
 
 ## 🎉 You're All Set!
 
-Your Harmony Generator app is ready to deploy. Just remember to:
+Your HarmonyForge app is ready to deploy. Just remember to:
 1. ✅ Replace Figma assets with real images
 2. ✅ Install dependencies
 3. ✅ Test thoroughly

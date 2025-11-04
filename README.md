@@ -1,7 +1,7 @@
 
-# Harmony Generator
+# HarmonyForge
 
-A modern web application for generating harmonies from MIDI/XML files with intelligent instrument selection and customization options.
+A modern web application for forging chamber music harmonies from MIDI/XML files with intelligent instrument selection and customization options.
 
 ![React](https://img.shields.io/badge/React-18.3-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6)
@@ -83,7 +83,7 @@ The built files will be in the `build/` directory.
 ## 📁 Project Structure
 
 ```
-harmony-generator/
+harmonyforge/
 ├── docs/                          # Documentation
 │   ├── DESIGN_SYSTEM.md          # Design system guidelines
 │   ├── EXPORT_GUIDE.md           # Export and deployment guide

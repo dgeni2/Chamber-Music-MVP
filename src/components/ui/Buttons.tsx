@@ -107,13 +107,15 @@ export const TertiaryButton: React.FC<BaseButtonProps> = ({
   return (
     <button
       className={`
-        bg-[#c4a287] hover:bg-[#b89477] active:bg-[#a88566]
+        bg-gradient-to-r from-[#e76d57] via-[#e2a59a] to-[#c4a287]
+        hover:from-[#e56959] hover:via-[#d99b8a] hover:to-[#b89477]
+        active:from-[#d66050] active:via-[#cc9080] active:to-[#a88566]
         text-white font-medium text-[24px]
         px-10 py-5 rounded-full
         transition-all duration-200
         hover:scale-105 active:scale-95
         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c4a287]
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#e76d57]
         shadow-md hover:shadow-lg
         ${className}
       `}
