@@ -110,27 +110,34 @@ function Frame12({
   );
 }
 
-// Import SVG images
-import AltoImage from '../assets/alto-instrument.svg';
-import TenorImage from '../assets/tenor-instrument.svg';
-import BassImage from '../assets/bass-instrument.svg';
+// Import instrument images
+import Cello1 from '../assets/cello-1.png';
+import DoubleBassImg from '../assets/Double Bass.png';
+import ViolaImg from '../assets/Viola.png';
+import ViolinImg from '../assets/Violin.png';
 
 // Icon components for each instrument
-function AltorIcon() {
+function CelloFullIcon() {
   return (
-    <img src={AltoImage} alt="Alto instrument visualization" className="w-full h-full object-contain" />
+    <img src={Cello1} alt="Full-size cello" className="w-full h-full object-contain" />
   );
 }
 
-function TenorIcon() {
+function DoubleBassIcon() {
   return (
-    <img src={TenorImage} alt="Tenor instrument visualization" className="w-full h-full object-contain" />
+    <img src={DoubleBassImg} alt="Double bass" className="w-full h-full object-contain" />
   );
 }
 
-function BassIcon() {
+function ViolaIcon() {
   return (
-    <img src={BassImage} alt="Bass instrument visualization" className="w-full h-full object-contain" />
+    <img src={ViolaImg} alt="Viola" className="w-full h-full object-contain" />
+  );
+}
+
+function ViolinIcon() {
+  return (
+    <img src={ViolinImg} alt="Violin" className="w-full h-full object-contain" />
   );
 }
 
@@ -151,24 +158,24 @@ function InstrumentCard({
 }) {
   return (
     <div 
-      className={`bg-gradient-to-b box-border content-stretch flex from-[rgba(231,109,87,0.1)] flex-col gap-[16px] sm:gap-[18px] md:gap-[20px] lg:gap-[22px] items-center p-[24px] sm:p-[32px] md:p-[38px] lg:p-[45px] relative rounded-[20px] sm:rounded-[24px] md:rounded-[28px] lg:rounded-[30px] shrink-0 to-[109.2%] to-[rgba(115,115,115,0)] w-full sm:w-[240px] md:w-[280px] lg:w-[320px] cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${isSelected ? 'ring-4 ring-[#e76d57] shadow-2xl' : ''}`}
+      className={`bg-gradient-to-b box-border content-stretch flex from-[rgba(231,109,87,0.1)] flex-col gap-[14px] sm:gap-[16px] md:gap-[18px] items-center p-[20px] sm:p-[24px] md:p-[28px] lg:p-[32px] relative rounded-[20px] sm:rounded-[24px] md:rounded-[28px] shrink-0 to-[109.2%] to-[rgba(115,115,115,0)] w-full cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${isSelected ? 'ring-4 ring-[#e76d57] shadow-2xl' : ''}`}
       onClick={onClick}
     >
-      <div aria-hidden="true" className={`absolute border-[2px] sm:border-[2.5px] md:border-[3px] border-solid inset-0 pointer-events-none rounded-[20px] sm:rounded-[24px] md:rounded-[28px] lg:rounded-[30px] transition-colors ${isSelected ? 'border-[#e76d57]' : 'border-[#e5ddd5]'}`} />
+      <div aria-hidden="true" className={`absolute border-[2px] sm:border-[2.5px] md:border-[3px] border-solid inset-0 pointer-events-none rounded-[20px] sm:rounded-[24px] md:rounded-[28px] transition-colors ${isSelected ? 'border-[#e76d57]' : 'border-[#e5ddd5]'}`} />
       
-      <div className="relative shrink-0 w-[140px] h-[140px] sm:w-[150px] sm:h-[150px] md:w-[170px] md:h-[170px] lg:w-[190px] lg:h-[190px] flex items-center justify-center">
+      <div className="relative shrink-0 w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] md:w-[160px] md:h-[160px] flex items-center justify-center">
         {icon}
       </div>
       
-      <p className="font-['Figtree:Bold',_sans-serif] font-bold leading-[normal] relative shrink-0 text-[20px] sm:text-[22px] md:text-[24px] lg:text-[26px] text-black text-center">
+      <p className="font-['Figtree:Bold',_sans-serif] font-bold leading-[normal] relative shrink-0 text-[18px] sm:text-[20px] md:text-[22px] text-black text-center">
         {name}
       </p>
       
-      <div className="flex flex-col gap-2 items-center text-center">
-        <p className="font-['SF_Pro_Rounded:Regular',_sans-serif] text-[#6B6563] text-[13px] sm:text-[14px] md:text-[15px] lg:text-[16px]">
+      <div className="flex flex-col gap-1 items-center text-center">
+        <p className="font-['SF_Pro_Rounded:Regular',_sans-serif] text-[#6B6563] text-[12px] sm:text-[13px] md:text-[14px]">
           Range: {range}
         </p>
-        <p className="font-['SF_Pro_Rounded:Regular',_sans-serif] text-[#6B6563] text-[12px] sm:text-[13px] md:text-[14px] px-4">
+        <p className="font-['SF_Pro_Rounded:Regular',_sans-serif] text-[#6B6563] text-[11px] sm:text-[12px] md:text-[13px] px-2">
           {description}
         </p>
       </div>
@@ -179,34 +186,40 @@ function InstrumentCard({
 function Frame9({ selectedInstruments, onInstrumentToggle, maxSelection }: { selectedInstruments: string[]; onInstrumentToggle: (name: string) => void; maxSelection: number }) {
   const instruments = [
     { 
-      icon: <AltorIcon />, 
-      name: 'Altor',
-      range: 'C3 to E6',
-      description: 'Rich, warm tone perfect for harmonies'
+      icon: <CelloFullIcon />, 
+      name: 'Full-Size Cello',
+      range: 'C2 to A5',
+      description: 'Standard professional cello with rich, deep tones'
     },
     { 
-      icon: <TenorIcon />, 
-      name: 'Tenor',
-      range: 'C2 to C6',
-      description: 'Deep, expressive voice for lower harmonies'
-    },
-    { 
-      icon: <BassIcon />, 
-      name: 'Bass',
+      icon: <DoubleBassIcon />, 
+      name: 'Double Bass',
       range: 'E1 to G4',
-      description: 'Foundation with resonant low tones'
+      description: 'The largest and lowest-pitched bowed string instrument'
+    },
+    { 
+      icon: <ViolaIcon />, 
+      name: 'Viola',
+      range: 'C3 to E6',
+      description: 'Rich alto voice with warm, mellow timbre'
+    },
+    { 
+      icon: <ViolinIcon />, 
+      name: 'Violin',
+      range: 'G3 to E7',
+      description: 'Brilliant, agile soprano voice of the string family'
     },
   ];
 
   return (
     <div className="content-start flex flex-col gap-[30px] sm:gap-[35px] md:gap-[40px] items-start relative shrink-0 w-full">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-[24px] sm:gap-[32px] md:gap-[40px] lg:gap-[48px] items-start relative shrink-0 w-full justify-items-center">
+      <div className="flex flex-nowrap justify-start gap-[16px] sm:gap-[20px] md:gap-[24px] lg:gap-[32px] items-center relative w-full py-4">
         {instruments.map((instrument, i) => {
           const isSelected = selectedInstruments.includes(instrument.name);
           const canSelect = isSelected || selectedInstruments.length < maxSelection;
           
           return (
-            <div key={i} className={`w-full max-w-[320px] ${!canSelect ? 'opacity-40 pointer-events-none' : ''}`}>
+            <div key={i} className={`flex-shrink-0 w-[240px] sm:w-[260px] md:w-[280px] ${!canSelect ? 'opacity-40 pointer-events-none' : ''}`}>
               <InstrumentCard 
                 icon={instrument.icon}
                 name={instrument.name}

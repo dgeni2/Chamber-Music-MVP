@@ -269,9 +269,10 @@ function ProgressBar({ progress }: { progress: number }) {
       className="absolute top-0 left-0 w-full h-2 bg-[#dadada]/30 z-50"
       role="progressbar"
       aria-label="Processing progress"
-      aria-valuenow={roundedProgress}
-      aria-valuemin={0}
-      aria-valuemax={100}
+      aria-valuenow={String(roundedProgress)}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      data-progress={roundedProgress}
     >
       <div 
         className="h-full bg-gradient-to-r from-black via-gray-700 to-black transition-all duration-500 ease-out relative overflow-hidden"
